@@ -160,7 +160,8 @@ func virtualDiskREAD(c *Config, virtdisk_id string) (string, string, string, int
 	remote_cmd := fmt.Sprintf("test -s \"%s\"", virtdisk_id)
 	_, err := runRemoteSshCommand(esxiConnInfo, remote_cmd, "test if virtual disk exists")
 	if err != nil {
-		return "", "", "", 0, "", err
+		// If the disk doesn't exist, return empty strings and nil error so Terraform knows it's gone
+		return "", "", "", 0, "", nil
 	}
 
 	//  Get virtual disk flat size

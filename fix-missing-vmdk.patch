@@ -1,0 +1,30 @@
+diff --git a/esxi/virtual-disk_functions.go b/esxi/virtual-disk_functions.go
+index 27fba3d..2a1d728 100644
+--- a/esxi/virtual-disk_functions.go
++++ b/esxi/virtual-disk_functions.go
+@@ -160,7 +160,8 @@ func virtualDiskREAD(c *Config, virtdisk_id string) (string, string, string, int
+ 	remote_cmd := fmt.Sprintf("test -s \"%s\"", virtdisk_id)
+ 	_, err := runRemoteSshCommand(esxiConnInfo, remote_cmd, "test if virtual disk exists")
+ 	if err != nil {
+-		return "", "", "", 0, "", err
++		// If the disk doesn't exist, return empty strings and nil error so Terraform knows it's gone
++		return "", "", "", 0, "", nil
+ 	}
+ 
+ 	//  Get virtual disk flat size
+diff --git a/esxi/virtual-disk_read.go b/esxi/virtual-disk_read.go
+index d2330e6..71d2d1e 100644
+--- a/esxi/virtual-disk_read.go
++++ b/esxi/virtual-disk_read.go
+@@ -17,6 +17,11 @@ func resourceVIRTUALDISKRead(d *schema.ResourceData, m interface{}) error {
+ 		return fmt.Errorf("Failed to refresh virtual disk: %s\n", err)
+ 	}
+ 
++	if virtual_disk_name == "" {
++		d.SetId("")
++		return nil
++	}
++
+ 	d.Set("virtual_disk_disk_store", virtual_disk_disk_store)
+ 	d.Set("virtual_disk_dir", virtual_disk_dir)
+ 	d.Set("virtual_disk_name", virtual_disk_name)

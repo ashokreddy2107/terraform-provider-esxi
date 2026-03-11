@@ -17,6 +17,11 @@ func resourceVIRTUALDISKRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Failed to refresh virtual disk: %s\n", err)
 	}
 
+	if virtual_disk_name == "" {
+		d.SetId("")
+		return nil
+	}
+
 	d.Set("virtual_disk_disk_store", virtual_disk_disk_store)
 	d.Set("virtual_disk_dir", virtual_disk_dir)
 	d.Set("virtual_disk_name", virtual_disk_name)
